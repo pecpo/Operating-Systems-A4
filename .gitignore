@@ -1,0 +1,7 @@
+*.o
+*.exe
+*.out
+*.a
+*.lib
+.vscode/
+*.code-workspace
