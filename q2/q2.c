@@ -11,7 +11,7 @@ sem_t car,mutex;
 
 void* car(void* args){
     int max=max_capacity;
-    if(current_passengers<=max_capacity){
+    if(current_passengers<max_capacity){
         sem_wait(&car);
         sem_wait(&mutex);
         load();
@@ -20,10 +20,10 @@ void* car(void* args){
         sem_wait(&mutex);
         sem_post(&car);
     }
-    else if{
+    else if(current_passengers==max_capacity){
         sem_wait(&mutex);
         for(int i=0;i<current_passengers;i++){
-            unload();
+            unload(i);
         }
         sem_post(&mutex);
     }
@@ -39,11 +39,11 @@ void* passenger(void* args){
 }
 
 void load(){
-
+    
 }
 
-void unload(){
-
+void unload(int a){
+    printf("loading passenger %d",a);
 }
 
 void board(){
@@ -70,4 +70,10 @@ int main(){
     char* name=(char*)malloc(3);
     name="car";
     pthread_create(&car,NULL,car,(void*)name);
+    for(int i=0;i<passengers;i++){
+        pthread_join(threads[i],NULL);
+    }
+    pthread_join(car,NULL);
+    sem_destroy(&car);
+    sem_destroy(&mutex);
 }
