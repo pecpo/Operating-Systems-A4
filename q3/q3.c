@@ -1,66 +1,68 @@
 #include <stdio.h>
 #include <pthread.h>
-#include <semaphore.h>
 #include <unistd.h>
+#include <semaphore.h>
 
-sem_t left_sem, right_sem, bridge_sem;
-pthread_t left_thread, right_thread;
+#define MAX_CARS 1000
+#define MAX_BRIDGE_CARS 5
 
-void passing(int dir) {
-    if (dir == 0) {
-        printf("Car from left side is passing the bridge with thread: %ld\n", pthread_self());
-    } else {
-        printf("Car from right side is passing the bridge with thread: %ld\n", pthread_self());
-    }
-}
+sem_t bridgeSem;
+sem_t leftSem, rightSem;
+sem_t mutex; // Semaphore for implementing mutex lock
+
+int leftCars, rightCars;
 
 void* left(void* args) {
-    int num_cars = *((int*) args);
-    for (int i = 0; i < num_cars; i++) {
-        sem_wait(&left_sem);
-        sem_wait(&bridge_sem);
-        passing(0);
-        sleep(1);
-        sem_post(&bridge_sem);
-        sem_post(&right_sem);
-    }
-    pthread_exit(NULL);
+    
 }
 
 void* right(void* args) {
-    int num_cars = *((int*) args);
-    for (int i = 0; i < num_cars; i++) {
-        sem_wait(&right_sem);
-        sem_wait(&bridge_sem);
-        passing(1);
-        sleep(1);
-        sem_post(&bridge_sem);
-        sem_post(&left_sem);
-    }
-    pthread_exit(NULL);
+    
+}
+
+void passing(int dir) {
+
 }
 
 int main() {
-    sem_init(&left_sem, 0, 5);
-    sem_init(&right_sem, 0, 5);
-    sem_init(&bridge_sem, 0, 5);
+    pthread_t leftThreads[MAX_CARS], rightThreads[MAX_CARS];
+    int leftCarIDs[MAX_CARS], rightCarIDs[MAX_CARS];
+    // Initialization and semaphore creation
+    sem_init(&bridgeSem, 0, MAX_BRIDGE_CARS);
+    sem_init(&leftSem, 0, 1);
+    sem_init(&rightSem, 0, 1);
+    sem_init(&mutex, 0, 1); // Initializing the mutex semaphore
 
-    int num_left_cars, num_right_cars;
-    printf("Enter the number of cars on the left side: ");
-    scanf("%d", &num_left_cars);
-    printf("Enter the number of cars on the right side: ");
-    scanf("%d", &num_right_cars);
+    // Take input for the number of cars on the left and right
+    printf("Enter number of cars on the left side: ");
+    scanf("%d", &leftCars);
+    printf("Enter number of cars on the right side: ");
+    scanf("%d", &rightCars);
 
-    pthread_t left_thread, right_thread;
-    pthread_create(&left_thread, NULL, left, &num_left_cars);
-    pthread_create(&right_thread, NULL, right, &num_right_cars);
+    for (int i = 0; i < leftCars; ++i) {
+        leftCarIDs[i] = i;
+        pthread_create(&leftThreads[i], NULL, left, &leftCarIDs[i]);
+    }
 
-    pthread_join(left_thread, NULL);
-    pthread_join(right_thread, NULL);
 
-    sem_destroy(&left_sem);
-    sem_destroy(&right_sem);
-    sem_destroy(&bridge_sem);
+    for (int i = 0; i < rightCars; ++i) {
+        rightCarIDs[i] = i;
+        pthread_create(&rightThreads[i], NULL, right, &rightCarIDs[i]);
+    }
+    for (int i = 0; i < leftCars; ++i) {
+        pthread_join(leftThreads[i], NULL);
+    }
+
+
+    for (int i = 0; i < rightCars; ++i) {
+        pthread_join(rightThreads[i], NULL);
+    }
+
+    // Clean up and semaphore destruction
+    sem_destroy(&bridgeSem);
+    sem_destroy(&leftSem);
+    sem_destroy(&rightSem);
+    sem_destroy(&mutex); // Destroying the mutex semaphore
 
     return 0;
 }
