@@ -10,15 +10,17 @@ int current_passengers=0;
 sem_t cars,mutex;
 
 void* car(void* args){
-    int max=max_capacity;
+    
+}
+
+void* passenger(void* args){
     if(current_passengers<max_capacity){
-        sem_wait(&cars);
         sem_wait(&mutex);
-        load((int)args);
-        current_passengers++;
-        sleep(10);
-        sem_wait(&mutex);
-        sem_post(&cars);
+        load(*(int*)args);
+        // current_passengers++;
+        // printf("%d\n",current_passengers);
+        sleep(1);
+        sem_post(&mutex);
     }
     else if(current_passengers==max_capacity){
         sem_wait(&mutex);
@@ -34,20 +36,18 @@ void* car(void* args){
     }
 }
 
-void* passenger(void* args){
-
-}
-
 void load(int args){
-    printf("Loading passenger %d",args);
+    printf("Loading passenger %d\n",args);
+    return;
 }
 
 void unload(int a){
-    printf("Unloading passenger %d",a);
+    printf("Unloading passenger %d\n",a);
+    return;
 }
 
-void board(){
-
+void onboard(){
+    printf("Onboarded");
 }
 
 void offboard(){
@@ -64,13 +64,15 @@ int main(){
     pthread_t threads[passengers];
     int pass_ids[passengers];
     for(int i=0;i<passengers;i++){
-        pass_ids[i]=i;
+        sem_wait(&cars);
+        pass_ids[i]=i+1;
         pthread_create(&threads[i],NULL,passenger,&pass_ids[i]);
     }
     pthread_t car1;
     char name[]="cars";
     pthread_create(&car1,NULL,car,&name);
     for(int i=0;i<passengers;i++){
+        sem_post(&cars);
         pthread_join(threads[i],NULL);
     }
     pthread_join(car1,NULL);
