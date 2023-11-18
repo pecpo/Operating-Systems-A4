@@ -3,7 +3,7 @@
 #include <unistd.h>
 #include <semaphore.h>
 
-#define MAX_CARS 10
+#define MAX_CARS 100
 #define MAX_BRIDGE_CARS 5
 
 sem_t bridgeSem;
