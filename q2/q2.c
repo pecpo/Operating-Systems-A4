@@ -4,10 +4,11 @@
 #include <pthread.h>
 #include <semaphore.h>
 #include <unistd.h>
+
 int max_capacity=0;
 int passengers=0;
 int current_passengers=0;
-
+bool car_loaded=false;
 sem_t cars,mutex;
 
 void* car(void* args){
@@ -24,7 +25,6 @@ void* car(void* args){
 void* passenger(void* args){
     sem_wait(&mutex);
     bool boarded=false;
-    bool car_loaded=false;
     if(current_passengers<max_capacity){
         board(*(int*)args);
         current_passengers++;
