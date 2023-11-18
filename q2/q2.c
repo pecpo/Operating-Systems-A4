@@ -26,6 +26,7 @@ void* passenger(void* args){
         sem_wait(&mutex);
         for(int i=0;i<current_passengers;i++){
             unload(i);
+            sem_post(&cars);
         }
         sem_post(&mutex);
     }
@@ -72,7 +73,6 @@ int main(){
     char name[]="cars";
     pthread_create(&car1,NULL,car,&name);
     for(int i=0;i<passengers;i++){
-        sem_post(&cars);
         pthread_join(threads[i],NULL);
     }
     pthread_join(car1,NULL);
