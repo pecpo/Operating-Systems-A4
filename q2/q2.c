@@ -9,7 +9,7 @@ int max_capacity=0;
 int passengers=0;
 int current_passengers=0;
 bool car_loaded=false;
-sem_t cars,mutex;
+sem_t cars,mutex,;
 
 void* car(void* args){
     // if(max_capacity==current_passengers){
@@ -23,21 +23,21 @@ void* car(void* args){
 }
 
 void* passenger(void* args){
-    sem_wait(&mutex);
-    bool boarded=false;
-    if(current_passengers<max_capacity){
-        board(*(int*)args);
-        current_passengers++;
-        boarded=true;
-        // printf("%d\n",current_passengers);   
-    }
-    else{
-        printf("Car is full. Please wait for the car.\n");
-    }
-    sem_post(&mutex);
-    if(current_passengers==max_capacity && boarded){
-        unboard(*(int*)args);
-    }
+    // sem_wait(&mutex);
+    // bool boarded=false;
+    // if(current_passengers<max_capacity){
+    //     board(*(int*)args);
+    //     current_passengers++;
+    //     boarded=true;
+    //     // printf("%d\n",current_passengers);   
+    // }
+    // else{
+    //     printf("Car is full. Please wait for the car.\n");
+    // }
+    // sem_post(&mutex);
+    // if(current_passengers==max_capacity && boarded){
+    //     unboard(*(int*)args);
+    // }
 }
 
 void load(int args){
