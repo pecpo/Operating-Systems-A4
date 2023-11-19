@@ -1,0 +1,38 @@
+Car Simulation with Passengers:
+This program simulates a scenario where a car transports passengers with limited capacity. The car and passenger actions are modeled using threads and synchronized with semaphores. The program takes user input for the total number of passengers and the maximum capacity of the car.
+
+Code Overview:
+1) Semaphores:
+    a. loading: Ensures that passengers are loaded onto the car in a synchronized manner.
+    b. cars: Represents the available seats in the car. Initialized with the maximum car capacity.
+    c. mutex: Controls access to shared variables and ensures mutual exclusion.
+    d. all_loaded: Indicates that all passengers are loaded onto the car and it can start driving.
+    e. drive_car: Ensures that only one car can be in the driving state at a time.
+    f. unloading: Controls the unloading of passengers from the car.
+
+2) Functions:
+    a. load(): Manages the loading of passengers onto the car.
+    b. drive(): Simulates the car driving.
+    c. unload(): Manages the unloading of passengers from the car.
+    d. board(int args): Handles the boarding of passengers onto the car.
+    e. unboard(int args): Handles the unboarding of passengers from the car.
+    f. wait(): Dummy function for waiting.
+
+3) Threads:
+    a. car: Simulates the car's behavior, loading, driving, and unloading passengers.
+    b. passenger: Represents each passenger, waiting for the car, boarding, and unboarding.
+
+4) Working:
+After taking the input and setting them as global variables passengers theread are created along with a car thread. In the passenger function it first calls sem_wait on cars semaphore which  blocks the threads which cannot be present in the car since the max capacity has been reached.After that using the loading semaphore as a lock the threads which can board are locked.All passengers thread are blocked at the moment so the car thread runs and calls the load function.This then unlocks the lock so that one passenger can board.After boarding the lock is set once again and this happens for the thread not block by cars semaphore.During this time the car thread waits. After this the lock for boarding is again set. During this time the passengers thread aboard the car wait using the all loaded and the drive_car semaphore.During this time the car drives and starts unloading process. After this the lock for unboarding is unlocked and passengers start unboarding one by one while locking and unlocking lock
+before and after unboarding. The above process continues until all passengers have been unboarded.
+
+5) Concurrency Bugs Prevention:
+    a. Atomiticty Violation Bugs: While updating shared variables semaphore as locks are used. E.g. mutex semaphore
+    b. Order Violation Bugs: Order is maintained by using the semaphore as condition variable. E.g. drive_car
+    c. Deadlock Bugs: Deadlocks are prevented since no thread tries to call wait on a semaphore which will post only on continuing the thread. E.g. mutex
+
+How to Run:
+1. Run the make clean on a terminal.
+2. Then run make on it.
+3. Enter no of passengers and max capacity of car.
+4. Then the code runs.

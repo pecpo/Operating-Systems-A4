@@ -8,7 +8,6 @@
 #define NUM_BOWLS 2
 
 pthread_mutex_t forks[NUM_FORKS];
-pthread_mutex_t bowls[NUM_BOWLS];
 pthread_cond_t bowl_available[NUM_BOWLS];
 
 void pickup_forks(int left, int right) {
@@ -21,40 +20,40 @@ void putdown_forks(int left, int right) {
     pthread_mutex_unlock(&forks[right]);
 }
 
-void pickup_bowl(int bowl) {
-    pthread_mutex_lock(&bowls[bowl]);
+void pickup_bowl() {
+    for(int i=0;i<NUM_BOWLS;i++){
+        if(pthread_cond_wait(&bowl_available[i], &forks[i]) == 0){
+            pthread_cond_signal(&bowl_available[i]);
+        }
+    }
 }
 
-void putdown_bowl(int bowl) {
-    pthread_mutex_unlock(&bowls[bowl]);
-}
+// void putdown_bowl(int bowl) {
+//     pthread_mutex_unlock(&bowls[bowl]);
+// }
 
-void eating(int philosopher_id) {
-    int left_fork = philosopher_id;
-    int right_fork = (philosopher_id + 1) % NUM_FORKS;
-    int bowl = philosopher_id % NUM_BOWLS;
-
+void eating(int args) {
+    int left_fork = args;
+    int right_fork = (args + 1) % NUM_FORKS;
     pickup_forks(left_fork, right_fork);
-    pickup_bowl(bowl);
+    pickup_bowl();
 
-    printf("Philosopher %d is eating\n", philosopher_id);
-    sleep(2); // Simulating eating time
+    printf("Philosopher %d is eating\n", args);
+    sleep(1); 
 
-    putdown_bowl(bowl);
+    // putdown_bowl(bowl);
     putdown_forks(left_fork, right_fork);
 }
 
 void thinking(int philosopher_id) {
     printf("Philosopher %d is thinking\n", philosopher_id);
-    sleep(2); // Simulating thinking time
+    sleep(1);
 }
 
 void* philosopher(void* args) {
-    int philosopher_id = *((int*)args);
-
     while (1) {
-        thinking(philosopher_id);
-        eating(philosopher_id);
+        thinking(*(int*)args);
+        eating(*(int*)args);
     }
 
     return NULL;
@@ -69,12 +68,11 @@ int main() {
     }
 
     for (int i = 0; i < NUM_BOWLS; ++i) {
-        pthread_mutex_init(&bowls[i], NULL);
         pthread_cond_init(&bowl_available[i], NULL);
     }
 
     for (int i = 0; i < NUM_PHILOSOPHERS; ++i) {
-        philosopher_ids[i] = i;
+        philosopher_ids[i] = i+1;
         pthread_create(&philosophers[i], NULL, philosopher, &philosopher_ids[i]);
     }
 
@@ -87,7 +85,6 @@ int main() {
     }
 
     for (int i = 0; i < NUM_BOWLS; ++i) {
-        pthread_mutex_destroy(&bowls[i]);
         pthread_cond_destroy(&bowl_available[i]);
     }
 
