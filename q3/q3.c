@@ -13,6 +13,7 @@ sem_t mutex; // Semaphore for implementing &mutex lock
 int leftCars, rightCars;
 int left_waiting=0, right_waiting=0;
 int left_active=0, right_active=0;
+void passing();
 
 void* left(void* args) {
     sem_wait(&mutex);
