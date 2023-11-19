@@ -8,6 +8,7 @@
 int max_capacity=0;
 int passengers=0;
 int current_passengers=0;
+int count=0;
 sem_t cars,mutex,all_loaded,drive_car,loading,unloading;
 
 void* car(void* args){
@@ -32,6 +33,7 @@ void* car(void* args){
 
 void* passenger(void* args){
     printf("Passenger %d is waiting for the car.\n",*(int*)args);
+    count++;
     sem_wait(&loading);
     sem_wait(&cars);
     int value=0;
@@ -58,6 +60,9 @@ void wait(){
 }
 
 void load(int args){
+    while(count<passengers){
+        wait();
+    }
     printf("The car is loading.\n");
     sem_post(&loading);
     while(current_passengers!=max_capacity){
@@ -114,6 +119,9 @@ int main(){
     if(passengers<=0){
         printf("Invalid no of passengers.\n");
         exit(0);
+    }
+    if(passengers<max_capacity){
+        max_capacity=passengers;
     }
     sem_init(&loading,0,0);
     sem_init(&cars,0,max_capacity);
