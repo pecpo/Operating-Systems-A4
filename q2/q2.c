@@ -34,8 +34,8 @@ void* car(void* args){
 void* passenger(void* args){
     printf("Passenger %d is waiting for the car.\n",*(int*)args);
     count++;
-    sem_wait(&loading);
     sem_wait(&cars);
+    sem_wait(&loading);
     int value=0;
     board(*(int*)args);
     sem_post(&loading);
@@ -68,6 +68,7 @@ void load(int args){
     while(current_passengers!=max_capacity){
         wait();
     }
+    sem_wait(&loading);
     return;
 }
 
