@@ -92,6 +92,7 @@ void unboard(int args){
 
 void drive(){
     printf("Car is driving.\n");
+    usleep(200);
     return;
 }
 
