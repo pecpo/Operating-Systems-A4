@@ -100,6 +100,17 @@ int main(){
     scanf("%d",&passengers);
     printf("Enter max capacity of car: ");
     scanf("%d",&max_capacity);
+    if(max_capacity<=0){
+        printf("Invalid max capacity.\n");
+        exit(0);
+    }
+    if(passengers<=0){
+        printf("Invalid no of passengers.\n");
+        exit(0);
+    }
+    if(passengers<max_capacity){
+        max_capacity=passengers;
+    }
     sem_init(&cars,0,max_capacity);
     sem_init(&mutex,0,1);
     sem_init(&all_loaded,0,1);
