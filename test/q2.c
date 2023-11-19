@@ -13,9 +13,10 @@ sem_t cars,mutex,all_loaded,drive_car;
 void* car(void* args){
     while(passengers>0){
         load();
-        sem_wait(&drive_car);
+        while(current_passengers<max_capacity){
+            wait();
+        }
         drive();
-        sem_post(&drive_car);
         unload();
         sem_post(&all_loaded);
         sem_wait(&mutex);
@@ -24,31 +25,29 @@ void* car(void* args){
             max_capacity=passengers;
         }
         sem_post(&mutex);
-        // printf("%d\n",passengers);
-        // int value=0;
-        // sem_getvalue(&cars,&value);
-        // printf("%d\n",value);
+        printf("%d\n",passengers);
     }
 }
 
 void* passenger(void* args){
     printf("Passenger %d is waiting for the car.\n",*(int*)args);
+    sem_wait(&cars);
     int value=0;
-    // printf("hello\n");
-    board(*(int*)args);
     sem_getvalue(&all_loaded,&value);
-    while(value>0){
+    while(value==1){
         wait();
         sem_getvalue(&all_loaded,&value);
     }
+    while(current_passengers==max_capacity){
+        wait();
+    }
+    board(*(int*)args);
     sem_getvalue(&drive_car,&value);
     while(value==0){
         wait();
         sem_getvalue(&drive_car,&value);
     }
     unboard(*(int*)args);
-    // printf("cotton\n");
-    pthread_exit(NULL);
 }
 
 void wait(){
@@ -57,52 +56,37 @@ void wait(){
 
 void load(int args){
     printf("The car is loading.\n");
-    int value=0;
-    sem_getvalue(&cars,&value);
-    while(value>0){
-        wait();
-        sem_getvalue(&cars,&value);
+    sem_wait(&mutex);
+    for(int i=0;i<max_capacity;i++){
+        sem_post(&cars);
     }
     sem_wait(&all_loaded);
-    return;
+    sem_post(&mutex);
 }
 
 void unload(){
     printf("The car is unloading.\n");
-    int value=0;
-    sem_getvalue(&cars,&value);
-    while(value!=max_capacity){
-        wait();
-        sem_getvalue(&cars,&value);
-    }
-    return;
+    sem_post(&drive_car);
 }
 
 void board(int args){
-    int value=0;
-    sem_getvalue(&all_loaded,&value);
-    while(current_passengers==max_capacity || value==0){
-        wait();
-        sem_getvalue(&all_loaded,&value);
-    }
     sem_wait(&mutex);
-    printf("Boarding passenger %d\n",args);
+    printf("Passenger %d has boarded the car.\n",args);
     current_passengers++;
+    sem_wait(&drive_car);
     sem_post(&mutex);
-    sem_wait(&cars);
-    return;
 }
 
 void unboard(int args){
     sem_wait(&mutex);
-    printf("Unboarding passenger %d\n",args);
+    printf("Passenger %d has unboarded the car.\n",args);
     current_passengers--;
     sem_post(&mutex);
-    sem_post(&cars);
 }
 
 void drive(){
     printf("Car is driving.\n");
+    sem_wait(&drive_car);
     return;
 }
 
