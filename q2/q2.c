@@ -11,6 +11,13 @@ int current_passengers=0;
 int count=0;
 sem_t cars,mutex,all_loaded,drive_car,loading,unloading;
 
+void load();
+void drive();
+void unload();
+void board(int args);
+void unboard(int args);
+void wait();
+
 void* car(void* args){
     while(passengers>0){
         load();
@@ -59,7 +66,7 @@ void wait(){
     return;
 }
 
-void load(int args){
+void load(){
     while(count<passengers){
         wait();
     }
