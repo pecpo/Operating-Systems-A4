@@ -3,7 +3,7 @@
 #include <unistd.h>
 #include <semaphore.h>
 
-#define MAX_CARS 100
+#define MAX_CARS 1000
 #define MAX_BRIDGE_CARS 5
 
 sem_t bridgeSem;
@@ -13,6 +13,8 @@ sem_t mutex; // Semaphore for implementing &mutex lock
 int leftCars, rightCars;
 int left_waiting=0, right_waiting=0;
 int left_active=0, right_active=0;
+
+void passing(int dir);
 
 void* left(void* args) {
     sem_wait(&mutex);
@@ -50,7 +52,7 @@ void* left(void* args) {
         right_waiting--;
     }
     sem_post(&mutex);
-
+    pthread_exit(NULL);
 }
 
 void* right(void* args) {
@@ -89,6 +91,7 @@ void* right(void* args) {
         left_waiting--;
     }
     sem_post(&mutex);
+    pthread_exit(NULL);
 }
 
 void passing(int dir) {
