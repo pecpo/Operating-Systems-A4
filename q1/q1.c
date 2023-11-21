@@ -68,6 +68,8 @@ void eating(int args){
             }
         }
         if(bowl_id==-1){
+            pthread_mutex_unlock(&forks[left_fork]);
+            pthread_mutex_unlock(&forks[right_fork]);
             pthread_cond_wait(&bowls_available[0],&mutex);
         }
     }
@@ -77,7 +79,6 @@ void eating(int args){
     pthread_mutex_lock(&mutex);
     bowls[bowl_id]=1;
     pthread_cond_signal(&bowls[bowl_id]);
-    // printf("Philosopher %d has finished eating.\n",args);
     pthread_mutex_unlock(&mutex);
     return;
 }
