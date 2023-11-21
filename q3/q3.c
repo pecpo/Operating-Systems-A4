@@ -6,7 +6,6 @@
 #define MAX_CARS 1000
 #define MAX_BRIDGE_CARS 5
 
-sem_t bridgeSem;
 sem_t leftSem, rightSem;
 sem_t mutex; // Semaphore for implementing &mutex lock
 
@@ -15,7 +14,7 @@ int left_waiting=0, right_waiting=0;
 int left_active=0, right_active=0;
 void passing();
 
-void passing(int dir);
+void passing(int dir, int args);
 
 void* left(void* args) {
     sem_wait(&mutex);
@@ -29,8 +28,7 @@ void* left(void* args) {
     sem_post(&mutex);
     sem_wait(&leftSem);
 
-    passing(0);
-    printf("Car %d is crossing the bridge from left to right\n", *((int*)args));
+    passing(0, *(int*)args);
 
     sem_wait(&mutex);
     left_active--;
@@ -68,8 +66,7 @@ void* right(void* args) {
     sem_post(&mutex);
     sem_wait(&rightSem);
 
-    passing(1);
-    printf("Car %d is crossing the bridge from right to left\n", *((int*)args));
+    passing(1, *(int*)args);
 
     sem_wait(&mutex);
     right_active--;
@@ -95,25 +92,23 @@ void* right(void* args) {
     pthread_exit(NULL);
 }
 
-void passing(int dir) {
+void passing(int dir, int args) {
     if(dir==1){
-        // printf("Car");
+        printf("Car %d is crossing the bridge from right to left\n", (args));
     }
     else{
-        // printf("Car");
+        printf("Car %d is crossing the bridge from left to right\n", (args));
     }
 }
 
 int main() {
     pthread_t leftThreads[MAX_CARS], rightThreads[MAX_CARS];
     int leftCarIDs[MAX_CARS], rightCarIDs[MAX_CARS];
-    // Initialization and semaphore creation
-    sem_init(&bridgeSem, 0, MAX_BRIDGE_CARS);
+
     sem_init(&leftSem, 0, 1);
     sem_init(&rightSem, 0, 1);
-    sem_init(&mutex, 0, 1); // Initializing the &mutex semaphore
+    sem_init(&mutex, 0, 1); 
 
-    // Take input for the number of cars on the left and right
     printf("Enter number of cars on the left side: ");
     scanf("%d", &leftCars);
     printf("Enter number of cars on the right side: ");
@@ -137,11 +132,9 @@ int main() {
         pthread_join(rightThreads[i], NULL);
     }
 
-    // Clean up and semaphore destruction
-    sem_destroy(&bridgeSem);
     sem_destroy(&leftSem);
     sem_destroy(&rightSem);
-    sem_destroy(&mutex); // Destroying the &mutex semaphore
+    sem_destroy(&mutex); 
 
     return 0;
 }
