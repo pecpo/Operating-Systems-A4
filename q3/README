@@ -26,8 +26,10 @@ Working
 
 1. The program prompts for the number of cars on the left and right sides.
 2. Threads representing cars from both sides are created based on the input.
-3. Cars attempt to cross the bridge based on the available space and waiting conditions.
+3. Cars attempt to board the bridge based on number of active and waiting cars on either side, otherwise they wait due to the left or right semaphores.
 4. Semaphore controls (`sem_post` and `sem_wait`) manage the access to the bridge.
+5. If they clear the semaphore, they print the statement indicating they are crossing the bridge based on their direction and carID.
+6. After they have printed the statement, the thread performs some checks upon exiting the bridge to ensure correctness and prevent starvation, this results in a "flip flop" pattern of crossing of bridge.
 5. Upon completion, the threads are joined, and semaphores are destroyed.
 
 Concurrency Bug Prevention
