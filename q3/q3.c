@@ -6,16 +6,15 @@
 #define MAX_CARS 1000
 #define MAX_BRIDGE_CARS 5
 
-sem_t bridgeSem;
 sem_t leftSem, rightSem;
-sem_t mutex; // Semaphore for implementing &mutex lock
+sem_t mutex; 
 
 int leftCars, rightCars;
 int left_waiting=0, right_waiting=0;
 int left_active=0, right_active=0;
 void passing();
 
-void passing(int dir);
+void passing(int dir, int args);
 
 void* left(void* args) {
     sem_wait(&mutex);
@@ -29,14 +28,13 @@ void* left(void* args) {
     sem_post(&mutex);
     sem_wait(&leftSem);
 
-    passing(0);
-    printf("Car %d is crossing the bridge from left to right\n", *((int*)args));
+    passing(0, *(int*)args);
 
     sem_wait(&mutex);
     left_active--;
     if((left_active==0)&&(right_waiting>0)){
-        int i;
-        for(i=0;i<MAX_BRIDGE_CARS;i++){
+        int i=MAX_BRIDGE_CARS;
+        while(i--){
             if(right_waiting>0){
                 right_waiting--;
                 right_active++;
@@ -49,8 +47,8 @@ void* left(void* args) {
     }
     else if((right_waiting==0)&&(left_waiting>0)){
         sem_post(&leftSem);
-        right_active++;
-        right_waiting--;
+        left_active++;
+        left_waiting--;
     }
     sem_post(&mutex);
     pthread_exit(NULL);
@@ -68,14 +66,13 @@ void* right(void* args) {
     sem_post(&mutex);
     sem_wait(&rightSem);
 
-    passing(1);
-    printf("Car %d is crossing the bridge from right to left\n", *((int*)args));
+    passing(1, *(int*)args);
 
     sem_wait(&mutex);
     right_active--;
     if((right_active==0)&&(left_waiting>0)){
-        int i;
-        for(i=0;i<MAX_BRIDGE_CARS;i++){
+        int i=MAX_BRIDGE_CARS;
+        while(i--){
             if(left_waiting>0){
                 left_waiting--;
                 left_active++;
@@ -88,32 +85,32 @@ void* right(void* args) {
     }
     else if((left_waiting==0)&&(right_waiting>0)){
         sem_post(&rightSem);
-        left_active++;
-        left_waiting--;
+        right_active++;
+        right_waiting--;
     }
     sem_post(&mutex);
     pthread_exit(NULL);
 }
 
-void passing(int dir) {
+void passing(int dir, int args) {
     if(dir==1){
-        // printf("Car");
+        usleep(1000);
+        printf("Car %d is crossing the bridge from right to left\n", (args));
     }
     else{
-        // printf("Car");
+        usleep(1000);
+        printf("Car %d is crossing the bridge from left to right\n", (args));
     }
 }
 
 int main() {
     pthread_t leftThreads[MAX_CARS], rightThreads[MAX_CARS];
     int leftCarIDs[MAX_CARS], rightCarIDs[MAX_CARS];
-    // Initialization and semaphore creation
-    sem_init(&bridgeSem, 0, MAX_BRIDGE_CARS);
-    sem_init(&leftSem, 0, 1);
-    sem_init(&rightSem, 0, 1);
-    sem_init(&mutex, 0, 1); // Initializing the &mutex semaphore
 
-    // Take input for the number of cars on the left and right
+    sem_init(&leftSem, 0, 0);
+    sem_init(&rightSem, 0, 0);
+    sem_init(&mutex, 0, 1); 
+
     printf("Enter number of cars on the left side: ");
     scanf("%d", &leftCars);
     printf("Enter number of cars on the right side: ");
@@ -137,11 +134,9 @@ int main() {
         pthread_join(rightThreads[i], NULL);
     }
 
-    // Clean up and semaphore destruction
-    sem_destroy(&bridgeSem);
     sem_destroy(&leftSem);
     sem_destroy(&rightSem);
-    sem_destroy(&mutex); // Destroying the &mutex semaphore
+    sem_destroy(&mutex); 
 
     return 0;
 }

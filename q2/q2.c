@@ -19,7 +19,7 @@ void unboard(int args);
 void wait();
 
 void* car(void* args){
-    while(1){
+    while(passengers>0){
         load();
         sem_wait(&drive_car);
         sem_wait(&all_loaded);
@@ -27,14 +27,18 @@ void* car(void* args){
         sem_post(&drive_car);
         unload();
         sem_post(&all_loaded);
-        sleep(5);
+        sem_wait(&mutex);
+        passengers-=max_capacity;
+        if(passengers<max_capacity){
+            max_capacity=passengers;
+        }
+        sem_post(&mutex);
     }
     printf("All passengers have been served.\n");
     pthread_exit(NULL);
 }
 
 void* passenger(void* args){
-    while(1){
     printf("Passenger %d is waiting for the car.\n",*(int*)args);
     count++;
     sem_wait(&cars);
@@ -55,7 +59,6 @@ void* passenger(void* args){
     sem_wait(&unloading);
     unboard(*(int*)args);
     sem_post(&unloading);
-    }
     pthread_exit(NULL);
 }
 
@@ -109,7 +112,6 @@ void unboard(int args){
 
 void drive(){
     printf("Car is driving.\n");
-    sleep(2);
     return;
 }
 
