@@ -1,28 +1,28 @@
-# Bridge Crossing Simulation with Pthreads and Semaphores
+ Bridge Crossing Simulation with Pthreads and Semaphores
 
 This program simulates cars crossing a bridge using threads (representing cars) in a controlled manner with the help of semaphores to avoid concurrency issues.
 
-## Semaphores
+ Semaphores
 
-### `leftSem` and `rightSem`
+ `leftSem` and `rightSem`
 - These semaphores control the passage of cars from the left and right sides, respectively.
 - Initialized with an initial value of 0 to block the initial threads until cars are allowed to cross.
 
-### `mutex`
+ `mutex`
 - A mutex semaphore to ensure mutual exclusion while accessing shared variables.
 - Initialized with an initial value of 1 to allow only one thread at a time to access critical sections.
 
-## Functions
+ Functions
 
-### `left` and `right`
+ `left` and `right`
 - These functions represent the behavior of cars coming from the left and right sides, respectively.
 - They implement the logic for cars to wait or proceed based on the current bridge occupancy.
 
-### `passing`
+ `passing`
 - Simulates the action of a car crossing the bridge from one side to the other.
 - Implements a small delay using `usleep` to mimic the time taken by a car to cross.
 
-## Working
+Working
 
 1. The program prompts for the number of cars on the left and right sides.
 2. Threads representing cars from both sides are created based on the input.
@@ -30,7 +30,7 @@ This program simulates cars crossing a bridge using threads (representing cars) 
 4. Semaphore controls (`sem_post` and `sem_wait`) manage the access to the bridge.
 5. Upon completion, the threads are joined, and semaphores are destroyed.
 
-## Concurrency Bug Prevention
+Concurrency Bug Prevention
 
 - Mutual exclusion using the `mutex` semaphore prevents multiple threads from accessing critical sections simultaneously.
 - Controlled access to the bridge via `leftSem` and `rightSem` ensures that cars cross the bridge without violating the constraints of maximum capacity and opposing traffic.
