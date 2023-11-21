@@ -23,8 +23,16 @@ Code Overview:
     b. passenger: Represents each passenger, waiting for the car, boarding, and unboarding.
 
 4) Working:
-After taking the input and setting them as global variables passengers theread are created along with a car thread. In the passenger function it first calls sem_wait on cars semaphore which  blocks the threads which cannot be present in the car since the max capacity has been reached.After that using the loading semaphore as a lock the threads which can board are locked.All passengers thread are blocked at the moment so the car thread runs and calls the load function.This then unlocks the lock so that one passenger can board.After boarding the lock is set once again and this happens for the thread not block by cars semaphore.During this time the car thread waits. After this the lock for boarding is again set. During this time the passengers thread aboard the car wait using the all loaded and the drive_car semaphore.During this time the car drives and starts unloading process. After this the lock for unboarding is unlocked and passengers start unboarding one by one while locking and unlocking lock
-before and after unboarding. The above process continues until all passengers have been unboarded.
+After taking the input and setting them as global variables passengers theread are created along with a car thread. 
+In the passenger function it first calls sem_wait on cars semaphore which  blocks the threads which cannot be present
+ in the car since the max capacity has been reached.After that using the loading semaphore as a lock the threads 
+ which can board are locked.All passengers thread are blocked at the moment so the car thread runs and calls the 
+ load function.This then unlocks the lock so that one passenger can board.After boarding the lock is set once again 
+ and this happens for the thread not block by cars semaphore.During this time the car thread waits. After this the 
+ lock for boarding is again set. During this time the passengers thread aboard the car wait using the all loaded and 
+ the drive_car semaphore.During this time the car drives and starts unloading process. After this the lock for unboarding
+ is unlocked and passengers start unboarding one by one while locking and unlocking lock before and after unboarding. 
+ The above process continues until all passengers have been unboarded.
 
 5) Concurrency Bugs Prevention:
     a. Atomiticty Violation Bugs: While updating shared variables semaphore as locks are used. E.g. mutex semaphore
