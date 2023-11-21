@@ -27,7 +27,7 @@ void* car(void* args){
         sem_post(&drive_car);
         unload();
         sem_post(&all_loaded);
-        usleep(10000);
+        usleep(100000);
     }
     printf("All passengers have been served.\n");
     pthread_exit(NULL);
@@ -110,7 +110,7 @@ void unboard(int args){
 
 void drive(){
     printf("Car is driving.\n");
-    usleep(10000);
+    usleep(100000);
     return;
 }
 
