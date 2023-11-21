@@ -108,14 +108,32 @@ int main() {
     pthread_t leftThreads[MAX_CARS], rightThreads[MAX_CARS];
     int leftCarIDs[MAX_CARS], rightCarIDs[MAX_CARS];
 
-    sem_init(&leftSem, 0, 0);
     sem_init(&rightSem, 0, 0);
-    sem_init(&mutex, 0, 1); 
+    if (sem_init(&rightSem, 0, 0) != 0) {
+        perror("Failed to initialize rightSem");
+        exit(1);
+    }
+
+    sem_init(&mutex, 0, 1);
+    if (sem_init(&mutex, 0, 1) != 0) {
+        perror("Failed to initialize mutex");
+        exit(1);
+    }
+
+    sem_init(&leftSem, 0, 0);
+    if (sem_init(&leftSem, 0, 0) != 0) {
+        perror("Failed to initialize leftSem");
+        exit(1);
+    }
 
     printf("Enter number of cars on the left side: ");
     scanf("%d", &leftCars);
     printf("Enter number of cars on the right side: ");
     scanf("%d", &rightCars);
+    if(leftCars<0 || rightCars<0){
+        printf("Invalid number of cars.\n");
+        exit(1);
+    }
 
     for (int i = 0; i < leftCars; ++i) {
         leftCarIDs[i] = i;
@@ -151,9 +169,17 @@ int main() {
         }
     }
 
-    sem_destroy(&leftSem);
-    sem_destroy(&rightSem);
-    sem_destroy(&mutex); 
+    if (sem_destroy(&leftSem) != 0) {
+        perror("Error destroying leftSem");
+    }
+
+    if (sem_destroy(&rightSem) != 0) {
+        perror("Error destroying rightSem");
+    }
+
+    if (sem_destroy(&mutex) != 0) {
+        perror("Error destroying mutex");
+    }
 
     return 0;
 }
