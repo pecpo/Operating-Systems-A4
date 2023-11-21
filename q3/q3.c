@@ -1,9 +1,10 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <pthread.h>
 #include <unistd.h>
 #include <semaphore.h>
 
-#define MAX_CARS 1000
+#define MAX_CARS 10000
 #define MAX_BRIDGE_CARS 5
 
 sem_t leftSem, rightSem;
@@ -118,20 +119,36 @@ int main() {
 
     for (int i = 0; i < leftCars; ++i) {
         leftCarIDs[i] = i;
-        pthread_create(&leftThreads[i], NULL, left, &leftCarIDs[i]);
+        int createLeftThreadResult = pthread_create(&leftThreads[i], NULL, left, &leftCarIDs[i]);
+        if (createLeftThreadResult != 0) {
+            perror("Failed to create left thread");
+            exit(1);
+        }
     }
 
     for (int i = 0; i < rightCars; ++i) {
         rightCarIDs[i] = leftCars + i;
-        pthread_create(&rightThreads[i], NULL, right, &rightCarIDs[i]);
+        int createRightThreadResult =  pthread_create(&rightThreads[i], NULL, right, &rightCarIDs[i]);
+        if (createRightThreadResult != 0) {
+            perror("Failed to create right thread");
+            exit(1);
+        }
     }
 
     for (int i = 0; i < leftCars; ++i) {
-        pthread_join(leftThreads[i], NULL);
+        int joinLeftThreadResult = pthread_join(leftThreads[i], NULL);
+        if (joinLeftThreadResult != 0) {
+            perror("Failed to join left thread");
+            exit(1);
+        }
     }
 
     for (int i = 0; i < rightCars; ++i) {
-        pthread_join(rightThreads[i], NULL);
+        int joinRightThreadResult = pthread_join(rightThreads[i], NULL);
+        if (joinRightThreadResult != 0) {
+            perror("Failed to join right thread");
+            exit(1);
+        }
     }
 
     sem_destroy(&leftSem);
