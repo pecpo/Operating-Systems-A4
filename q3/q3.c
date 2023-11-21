@@ -33,8 +33,8 @@ void* left(void* args) {
     sem_wait(&mutex);
     left_active--;
     if((left_active==0)&&(right_waiting>0)){
-        int i;
-        for(i=0;i<MAX_BRIDGE_CARS;i++){
+        int i=MAX_BRIDGE_CARS;
+        while(i--){
             if(right_waiting>0){
                 right_waiting--;
                 right_active++;
@@ -71,8 +71,8 @@ void* right(void* args) {
     sem_wait(&mutex);
     right_active--;
     if((right_active==0)&&(left_waiting>0)){
-        int i;
-        for(i=0;i<MAX_BRIDGE_CARS;i++){
+        int i=MAX_BRIDGE_CARS;
+        while(i--){
             if(left_waiting>0){
                 left_waiting--;
                 left_active++;
