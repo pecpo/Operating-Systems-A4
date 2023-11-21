@@ -32,6 +32,23 @@ void pickupforks(int args){
     }
 }
 
+void putdownforks(int args){
+    int left_fork=args;
+    int right_fork=(args+1)%PHILOSOPHERS;
+    if(args==3){
+        pthread_mutex_unlock(&forks[left_fork]);
+        printf("Fork %d unacquired by %d\n",left_fork,args);
+        pthread_mutex_unlock(&forks[right_fork]);
+        printf("Fork %d unacquired by %d\n",right_fork,args);
+    }
+    else{
+        pthread_mutex_unlock(&forks[right_fork]);
+        printf("Fork %d unacquired by %d\n",right_fork,args);
+        pthread_mutex_unlock(&forks[left_fork]);
+        printf("Fork %d unacquired by %d\n",left_fork,args);
+    }
+}
+
 void eating(int args){
     while(count<PHILOSOPHERS){
         wait();
@@ -56,10 +73,7 @@ void eating(int args){
     }
     pthread_mutex_unlock(&mutex);
     printf("Philosopher %d is eating.\n",args);
-    pthread_mutex_unlock(&forks[left_fork]);
-    printf("Fork %d disacquired by %d\n",left_fork,args);
-    pthread_mutex_unlock(&forks[right_fork]);
-    printf("Fork %d disacquired by %d\n",right_fork,args);
+    putdownforks(args);
     pthread_mutex_lock(&mutex);
     bowls[bowl_id]=1;
     pthread_cond_signal(&bowls[bowl_id]);
