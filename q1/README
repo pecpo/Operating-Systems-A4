@@ -1,0 +1,23 @@
+Dining Philosophers Problem
+Introduction:
+The dining philosophers problem is a classic synchronization challenge that involves a group of philosophers sitting around a dining table. Each philosopher alternates between thinking and eating. To eat, a philosopher must pick up two adjacent forks and consume from a bowl. The main difficulty lies in preventing deadlocks and ensuring fair access to resources.
+
+Deadlock Explanation:
+Deadlocks can occur in the dining philosophers problem due to the potential circular waiting scenario. If each philosopher picks up one fork and waits for the neighboring fork to be available, a circular dependency may form, leading to a deadlock. For instance, if all philosophers simultaneously pick up the fork on their left and wait for the fork on their right, they will be stuck in a deadlock situation, unable to proceed.
+1) Proposed Solution
+We can make any one of the philosophers right handed which will solve the problem of deadlocks since not all will acquire all the left forks. If even four of them acquire left forks the fifth one will try to acquire the right fork which it will be unable to. This will avoid circular waiting and deadlock.
+The proposed solution utilizes pthread mutexes and condition variables for synchronization. Each philosopher must acquire the locks on both forks and the mutex for accessing the shared resources (bowls). 
+2) Condition Variables for Bowls:
+Condition variables (pthread_cond_t) are employed to signal when a bowl is available for consumption. Philosophers will wait on a condition variable associated with the specific bowl they intend to use. This helps prevent unnecessary busy waiting and ensures that a philosopher only proceeds to eat when a bowl is available.
+
+Fairness of the Solution:
+1) Mutex Locking Order:
+The locking order of forks is designed to be consistent across all threads. Philosophers with id=2 acquire the right fork first, and the rest will acquire the right fork first. This uniform 
+locking order helps prevent circular waiting and ensures fairness in resource allocation.
+
+2) Estimate of Philosopher Eating Frequency:
+The fairness of the solution is demonstrated by the fact that all philosophers can eventually eat. The count variable keeps track of the number of philosophers currently eating. In the provided implementation, each philosopher increments this count when they start eating and decrements it when they finish. This mechanism ensures that all philosophers get a turn to eat.
+However, the frequency at which a philosopher can eat may vary based on the interleaving of thread execution. Factors such as the system scheduler and the specific order in which threads are allowed to proceed will influence the overall fairness of resource allocation.
+
+Conclusion:
+By carefully managing the locking order, utilizing mutexes and condition variables, and ensuring a fair distribution of resources, the proposed solution aims to address deadlocks and provide a balanced opportunity for each philosopher to access the shared dining resources.
