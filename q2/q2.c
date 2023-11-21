@@ -27,13 +27,7 @@ void* car(void* args){
         sem_post(&drive_car);
         unload();
         sem_post(&all_loaded);
-        // sem_wait(&mutex);
-        // passengers-=max_capacity;
-        // if(passengers<max_capacity){
-        //     max_capacity=passengers;
-        // }
-        // sem_post(&mutex);
-        sleep(10);
+        sleep(5);
     }
     printf("All passengers have been served.\n");
     pthread_exit(NULL);
