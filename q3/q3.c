@@ -7,7 +7,7 @@
 #define MAX_BRIDGE_CARS 5
 
 sem_t leftSem, rightSem;
-sem_t mutex; // Semaphore for implementing &mutex lock
+sem_t mutex; 
 
 int leftCars, rightCars;
 int left_waiting=0, right_waiting=0;
@@ -47,8 +47,8 @@ void* left(void* args) {
     }
     else if((right_waiting==0)&&(left_waiting>0)){
         sem_post(&leftSem);
-        right_active++;
-        right_waiting--;
+        left_active++;
+        left_waiting--;
     }
     sem_post(&mutex);
     pthread_exit(NULL);
@@ -85,8 +85,8 @@ void* right(void* args) {
     }
     else if((left_waiting==0)&&(right_waiting>0)){
         sem_post(&rightSem);
-        left_active++;
-        left_waiting--;
+        right_active++;
+        right_waiting--;
     }
     sem_post(&mutex);
     pthread_exit(NULL);
@@ -94,9 +94,11 @@ void* right(void* args) {
 
 void passing(int dir, int args) {
     if(dir==1){
+        usleep(1000);
         printf("Car %d is crossing the bridge from right to left\n", (args));
     }
     else{
+        usleep(1000);
         printf("Car %d is crossing the bridge from left to right\n", (args));
     }
 }
@@ -105,8 +107,8 @@ int main() {
     pthread_t leftThreads[MAX_CARS], rightThreads[MAX_CARS];
     int leftCarIDs[MAX_CARS], rightCarIDs[MAX_CARS];
 
-    sem_init(&leftSem, 0, 1);
-    sem_init(&rightSem, 0, 1);
+    sem_init(&leftSem, 0, 0);
+    sem_init(&rightSem, 0, 0);
     sem_init(&mutex, 0, 1); 
 
     printf("Enter number of cars on the left side: ");

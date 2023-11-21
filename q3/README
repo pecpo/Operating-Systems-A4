@@ -1,31 +1,45 @@
-Bridge Crossing Simulation
-Overview
+# Bridge Crossing Simulation with Pthreads and Semaphores
 
-This C code simulates the movement of cars across a bridge, considering constraints such as a limited number of cars allowed on the bridge simultaneously and different numbers of cars on the left and right sides of the bridge.
-Features
+This program simulates cars crossing a bridge using threads (representing cars) in a controlled manner with the help of semaphores to avoid concurrency issues.
 
-    Semaphore Usage: The code utilizes semaphores to control access to the bridge, ensuring that the maximum number of cars allowed on the bridge is not exceeded.
-    Thread Modeling: Cars on the left and right sides are represented as separate threads.
-    Bridge Crossing Logic: Cars are permitted to cross the bridge based on certain conditions and synchronization using semaphores.
+## Semaphores
 
-Code Components
+### `leftSem` and `rightSem`
+- These semaphores control the passage of cars from the left and right sides, respectively.
+- Initialized with an initial value of 0 to block the initial threads until cars are allowed to cross.
 
-    left() and right() Functions: These functions model the behavior of cars on the left and right sides of the bridge, respectively. They handle the logic for allowing cars to cross when conditions permit.
-    passing() Function: Represents the bridge-crossing activity by the cars. This function is invoked when a car is allowed to cross the bridge.
+### `mutex`
+- A mutex semaphore to ensure mutual exclusion while accessing shared variables.
+- Initialized with an initial value of 1 to allow only one thread at a time to access critical sections.
 
-Running the Code
+## Functions
 
-    The code prompts the user to input the number of cars on the left and right sides.
-    Each car is represented as a separate thread using pthread_create().
-    The program waits for all threads to finish using pthread_join() before cleanup.
+### `left` and `right`
+- These functions represent the behavior of cars coming from the left and right sides, respectively.
+- They implement the logic for cars to wait or proceed based on the current bridge occupancy.
 
-Compilation
+### `passing`
+- Simulates the action of a car crossing the bridge from one side to the other.
+- Implements a small delay using `usleep` to mimic the time taken by a car to cross.
 
-To compile and run the code, just do make in your terminal
+## Working
+
+1. The program prompts for the number of cars on the left and right sides.
+2. Threads representing cars from both sides are created based on the input.
+3. Cars attempt to cross the bridge based on the available space and waiting conditions.
+4. Semaphore controls (`sem_post` and `sem_wait`) manage the access to the bridge.
+5. Upon completion, the threads are joined, and semaphores are destroyed.
+
+## Concurrency Bug Prevention
+
+- Mutual exclusion using the `mutex` semaphore prevents multiple threads from accessing critical sections simultaneously.
+- Controlled access to the bridge via `leftSem` and `rightSem` ensures that cars cross the bridge without violating the constraints of maximum capacity and opposing traffic.
+
+This strategy helps prevent race conditions, deadlocks, and other concurrency-related issues while allowing cars to cross the bridge smoothly.
 
 Usage
-
-    Run the compiled executable.
-    Follow the on-screen prompts to input the number of cars on each side.
-    Observe the bridge-crossing simulation.
+    1. Run the make clean on a terminal.
+    2. Then run make on it.
+    3. Enter numbers of cars crossing from left side and then right side
+    4. Then the code runs.
 
