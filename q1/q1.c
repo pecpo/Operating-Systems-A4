@@ -53,7 +53,7 @@ void eating(int args){
     while(count<PHILOSOPHERS){
         wait();
     }
-    sleep(1);
+    usleep(100000);
     int left_fork=args;
     int right_fork=(args+1)%PHILOSOPHERS;
     pickupforks(args);
@@ -107,19 +107,66 @@ int main(){
     bowls[0]=1;
     bowls[1]=1;
     for(int i=0;i<PHILOSOPHERS;i++){
-        pthread_mutex_init(&forks[i],NULL);
+        if (pthread_mutex_init(&forks[i], NULL) != 0) {
+            perror("pthread_mutex_init");
+            exit(1);
+        }
     }
     for(int i=0;i<2;i++){
-        pthread_cond_init(&bowls_available[i],NULL);
+        if (pthread_cond_init(&bowls_available[i],NULL)!=0){
+            perror("pthread_cond_init");
+            exit(1);
+        };
     }
     pthread_mutex_init(&mutex,NULL);
     int philosopher_ids[PHILOSOPHERS];
     pthread_t threads[PHILOSOPHERS];
     for(int i=0;i<PHILOSOPHERS;i++){
         philosopher_ids[i]=i;
-        pthread_create(&threads[i],NULL,philosopher,&philosopher_ids[i]);
+        int creation=pthread_create(&threads[i],NULL,philosopher,&philosopher_ids[i]);
+        if (creation != 0) {
+            perror("pthread_create");
+            exit(1);
+        }
     }
     for(int i=0;i<PHILOSOPHERS;i++){
-        pthread_join(threads[i],NULL);
+        int joining=pthread_join(threads[i],NULL);
+        if (joining != 0) {
+            perror("pthread_join");
+            exit(1);
+        }
     }
+    if (pthread_cond_destroy(&bowls_available[0]) != 0) {
+        perror("pthread_cond_destroy");
+        exit(1);
+    }
+    if (pthread_cond_destroy(&bowls_available[1]) != 0) {
+        perror("pthread_cond_destroy");
+        exit(1);
+    }
+    if(pthread_mutex_destroy(&mutex)!=0){
+        perror("pthread_mutex_destroy");
+        exit(1);
+    }
+    if (pthread_mutex_destroy(&forks[0]) != 0) {
+        perror("pthread_mutex_destroy");
+        exit(1);
+    }
+    if (pthread_mutex_destroy(&forks[1]) != 0) {
+        perror("pthread_mutex_destroy");
+        exit(1);
+    }
+    if (pthread_mutex_destroy(&forks[2]) != 0) {
+        perror("pthread_mutex_destroy");
+        exit(1);
+    }
+    if (pthread_mutex_destroy(&forks[3]) != 0) {
+        perror("pthread_mutex_destroy");
+        exit(1);
+    }
+    if (pthread_mutex_destroy(&forks[4]) != 0) {
+        perror("pthread_mutex_destroy");
+        exit(1);
+    }
+    return 0;
 }

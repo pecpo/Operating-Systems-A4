@@ -16,8 +16,9 @@ The locking order of forks is designed to be consistent across all threads. Phil
 locking order helps prevent circular waiting and ensures fairness in resource allocation.
 
 2) Estimate of Philosopher Eating Frequency:
-The fairness of the solution is demonstrated by the fact that all philosophers can eventually eat. The count variable keeps track of the number of philosophers currently eating. In the provided implementation, each philosopher increments this count when they start eating and decrements it when they finish. This mechanism ensures that all philosophers get a turn to eat.
+The fairness of the solution is demonstrated by the fact that all philosophers can eventually eat. In the provided implementation, each philosopher increments this count when they start eating. This mechanism ensures that all philosophers get a turn to eat.
 However, the frequency at which a philosopher can eat may vary based on the interleaving of thread execution. Factors such as the system scheduler and the specific order in which threads are allowed to proceed will influence the overall fairness of resource allocation.
+All philosopher threads are able to do it.
 
 Conclusion:
 By carefully managing the locking order, utilizing mutexes and condition variables, and ensuring a fair distribution of resources, the proposed solution aims to address deadlocks and provide a balanced opportunity for each philosopher to access the shared dining resources.
