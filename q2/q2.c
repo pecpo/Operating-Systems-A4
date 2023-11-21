@@ -27,7 +27,7 @@ void* car(void* args){
         sem_post(&drive_car);
         unload();
         sem_post(&all_loaded);
-        sleep(5);
+        usleep(10000);
     }
     printf("All passengers have been served.\n");
     pthread_exit(NULL);
@@ -88,6 +88,7 @@ void unload(){
         sem_post(&cars);
     }
     sem_post(&mutex);
+    sem_wait(&unloading);
     return;
 }
 
@@ -109,7 +110,7 @@ void unboard(int args){
 
 void drive(){
     printf("Car is driving.\n");
-    sleep(2);
+    usleep(10000);
     return;
 }
 
@@ -130,29 +131,81 @@ int main(){
         printf("Max capacity cannot be greater than no of passengers.\n");
         exit(0);
     }
-    sem_init(&loading,0,0);
-    sem_init(&cars,0,max_capacity);
-    sem_init(&mutex,0,1);
-    sem_init(&all_loaded,0,1);
-    sem_init(&drive_car,0,1);
-    sem_init(&unloading,0,0);
+    if (sem_init(&loading, 0, 0) == -1) {
+        perror("sem_init");
+        exit(1);
+    }
+    if (sem_init(&unloading, 0, 0) == -1) {
+        perror("sem_init");
+        exit(1);
+    }
+    if (sem_init(&drive_car, 0, 1) == -1) {
+        perror("sem_init");
+        exit(1);
+    }
+    if (sem_init(&all_loaded, 0, 1) == -1) {
+        perror("sem_init");
+        exit(1);
+    }
+    if(sem_init(&cars,0,max_capacity)==-1){
+        perror("sem_init");
+        exit(1);
+    }
+    if(sem_init(&mutex,0,1)==-1){
+        perror("sem_init");
+        exit(1);
+    }
     pthread_t threads[passengers];
     int pass_ids[passengers];
     for(int i=0;i<passengers;i++){
         pass_ids[i]=i+1;
-        pthread_create(&threads[i],NULL,passenger,&pass_ids[i]);
+        int creation_passengers=pthread_create(&threads[i],NULL,passenger,&pass_ids[i]);
+        if (creation_passengers != 0) {
+            perror("Failed to create thread");
+            exit(1);
+        }
     }
     pthread_t car1;
     char name[]="cars";
-    pthread_create(&car1,NULL,car,&name);
-    for(int i=0;i<passengers;i++){
-        pthread_join(threads[i],NULL);
+    int creation_car=pthread_create(&car1,NULL,car,&name);
+    if (creation_car != 0) {
+        perror("Failed to create thread");
+        exit(1);
     }
-    pthread_join(car1,NULL);
-    sem_destroy(&cars);
-    sem_destroy(&mutex);
-    sem_destroy(&all_loaded);
-    sem_destroy(&drive_car);
-    sem_destroy(&loading);
-    sem_destroy(&unloading);
+    for(int i=0;i<passengers;i++){
+        int joining_passengers=pthread_join(threads[i],NULL);
+        if(joining_passengers!=0){
+            perror("Failed to join thread");
+            exit(1);
+        }
+    }
+    int joining_car=pthread_join(car1,NULL);
+    if(joining_car!=0){
+        perror("Failed to join thread");
+        exit(1);
+    }
+    if (sem_destroy(&loading) == -1) {
+        perror("sem_destroy");
+        exit(1);
+    }
+    if (sem_destroy(&unloading) == -1) {
+        perror("sem_destroy");
+        exit(1);
+    }
+    if (sem_destroy(&drive_car) == -1) {
+        perror("sem_destroy");
+        exit(1);
+    }
+    if (sem_destroy(&all_loaded) == -1) {
+        perror("sem_destroy");
+        exit(1);
+    }
+    if (sem_destroy(&cars)==-1){
+        perror("sem_destroy");
+        exit(1);
+    }
+    if (sem_destroy(&mutex)==-1){
+        perror("sem_destroy");
+        exit(1);
+    }
 }
